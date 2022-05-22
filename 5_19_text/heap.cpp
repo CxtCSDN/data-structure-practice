@@ -37,7 +37,7 @@ void push(Heap* heap, HeapData x)
 	if (heap->size == heap->capacity) {
 		HeapData* tmp = (HeapData*)realloc(heap->m_heap, sizeof(HeapData) * heap->capacity * 2);
 		if (tmp == nullptr) {
-			perror("realloc");
+			perror("realloc fail");
 			return;
 		}
 		else
@@ -48,12 +48,11 @@ void push(Heap* heap, HeapData x)
 	heap->size++;
 	AdjustUp(heap);
 }
-void AdjustDown(Heap* heap) {
-	int parent = 0;
+void AdjustDown(Heap* heap, int parent) {
 	int child = parent * 2 + 1;
 	while (child < heap->size) {
 		if (child + 1 < heap->size && heap->m_heap[child] < heap->m_heap[child + 1]) {
-			child += 1;
+			child++;
 		}
 		if (heap->m_heap[child] > heap->m_heap[parent]) {
 			swap(heap->m_heap[child], heap->m_heap[parent]);
@@ -64,11 +63,24 @@ void AdjustDown(Heap* heap) {
 			break;
 	}
 }
+void R_AdjustDown(Heap* heap, int parent) {
+	int child = parent * 2 + 1;
+	if (child > heap->size) {
+		return;
+	}
+	R_AdjustDown(heap, child);
+	if (child + 1 < heap->size && heap->m_heap[child] < heap->m_heap[child + 1]) {
+		child++;
+	}
+	if (heap->m_heap[child] > heap->m_heap[parent]) {
+		swap(heap->m_heap[child], heap->m_heap[parent]);
+	}
+}
 void pop(Heap* heap)
 {
 	swap(heap->m_heap[0], heap->m_heap[heap->size - 1]);
 	heap->size--;
-	AdjustDown(heap);
+	R_AdjustDown(heap, 0);
 }
 
 HeapData top(Heap* heap)
